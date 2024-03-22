@@ -20,10 +20,11 @@ int login() {
 
     //list of acceptable usernames and password
     User users[MAX_USERS] = {
-        {"user1", "pass1"},
-        {"user2", "pass2"},
+        {"Allan", "Olivete"},
+        {"Jaryl", "DeJesus"},
         {"PJ", " "},
-        {"Genshin","Impact"}
+        {"Vian","Duran"},
+        {"Zach","DeGuzman"}
     };
 
     //initialize variables
