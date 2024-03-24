@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 int login();
+float takeOrder();
 void menuDisplay();
 
 //login
@@ -93,11 +94,44 @@ struct MenuItem menuItems[] = {
 };
 void displayMenu(struct MenuItem items[], int size) {
     printf("Menu:\n");
-    printf("%-20s %-10s %-10s\n", "Name", "Price (₱)", "In Stock");
+    printf("%-20s %-10s %-10s\n", "Name", "Price (PHP)", "In Stock");
     printf("----------------------------------------\n");
     for (int i = 0; i < size; i++) {
         printf("%-20s %-10.2f %-10d\n", items[i].name, items[i].price, items[i].stock);
     }
+}
+
+float takeOrder(struct MenuItem items[], int size) {
+    float total = 0.0;
+    char itemName[20];
+    int quantity;
+
+    printf("----------------------------------------\n");
+    printf("\nEnter your order (Type 'done' to finish):\n");
+    while (1) {
+        printf("\nItem name: ");
+        scanf("%s", itemName);
+        if (strcmp(itemName, "done") == 0)
+            break;
+
+        printf("Quantity: ");
+        scanf("%d", &quantity);
+
+        for (int i = 0; i < size; i++) {
+            if (strcmp(itemName, items[i].name) == 0) {
+                if (items[i].stock >= quantity) {
+                    total += items[i].price * quantity;
+                    items[i].stock -= quantity;
+                    printf("Added %d %s to your order.\n", quantity, itemName);
+                } else {
+                    printf("Sorry, %s is out of stock or insufficient stock.\n", itemName);
+                }
+                break;
+            }
+        }
+    }
+
+    return total;
 }
 
 void main(){
@@ -105,5 +139,7 @@ void main(){
     if(key == 1){
         int size = sizeof(menuItems) / sizeof(menuItems[0]);
         displayMenu(menuItems, size);
+        float totalPrice = takeOrder(menuItems, size);
+        printf("\nTOTAL: \tPhp %.2f\n", totalPrice);
     }    
 }
