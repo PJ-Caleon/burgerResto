@@ -3,23 +3,21 @@ void generateReceipt(struct MenuItem items[], int size, float totalPrice) {
     printf("\n------- RECEIPT -------\n");
     printf("%-20s %-10s %-10s %-10s\n", "Name", "Quantity", "Price (PHP)", "Total (PHP)");
     printf("----------------------------------------\n");
-  
+
     float totalOrderPrice = 0.0;
     for (int i = 0; i < size; i++) {
-        if (items[i].stock < (menuItems[i].stock)) {
-            int quantityOrdered = (menuItems[i].stock) - (items[i].stock);
+        if (items[i].stock > 0) { // Check if the item was ordered (stock is positive)
+            int quantityOrdered = items[i].stock;
             float itemTotal = quantityOrdered * items[i].price;
-          
+
             printf("%-20s %-10d %-10.2f %-10.2f\n", items[i].name, quantityOrdered, items[i].price, itemTotal);
             totalOrderPrice += itemTotal;
         }
     }
 
-  
+
     printf("----------------------------------------\n");
     printf("TOTAL ORDER PRICE: Php %.2f\n", totalOrderPrice);
-
-
   
     // Option for discounts
     float discountedPrice = totalOrderPrice;
@@ -48,4 +46,9 @@ void generateReceipt(struct MenuItem items[], int size, float totalPrice) {
     } else {
         printf("Insufficient cash paid. Remaining balance: Php %.2f\n", -change);
     }
+}
+
+void main(){
+    //call out receipt.c
+    generateReceipt(orderedItems, orderedItemCount, totalPrice);
 }
