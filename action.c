@@ -28,10 +28,11 @@ void displayMenu(struct MenuItem items[], int size) {
     }
 }
 
-float takeOrder(struct MenuItem items[], int size) {
+float takeOrder(struct MenuItem items[], int size, struct MenuItem orderedItems[], int *orderedItemCount) {
     float total = 0.0;
     char itemName[20];
     int quantity;
+    *orderedItemCount = 0; // Initialize the count of ordered items
 
     printf("----------------------------------------\n");
     printf("\nEnter your order (Type 'done' to finish):\n");
@@ -50,6 +51,12 @@ float takeOrder(struct MenuItem items[], int size) {
                     total += items[i].price * quantity;
                     items[i].stock -= quantity;
                     printf("Added %d %s to your order.\n", quantity, itemName);
+
+                    // Store the ordered item and quantity
+                    strcpy(orderedItems[*orderedItemCount].name, itemName);
+                    orderedItems[*orderedItemCount].price = items[i].price;
+                    orderedItems[*orderedItemCount].stock = quantity;
+                    (*orderedItemCount)++;
                 } else {
                     printf("Sorry, %s is out of stock or insufficient stock.\n", itemName);
                 }
@@ -63,8 +70,10 @@ float takeOrder(struct MenuItem items[], int size) {
 
 int main() {
     int size = sizeof(menuItems) / sizeof(menuItems[0]);
+    struct MenuItem orderedItems[size]; // Array to store ordered items
+    int orderedItemCount; // Variable to store the count of ordered items
     displayMenu(menuItems, size);
-    float totalPrice = takeOrder(menuItems, size);
+    float totalPrice = takeOrder(menuItems, size, orderedItems, &orderedItemCount);
     printf("\nTOTAL: \tPhp %.2f\n", totalPrice);
     return 0;
 }
