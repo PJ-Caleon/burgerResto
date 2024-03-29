@@ -92,6 +92,7 @@ struct MenuItem menuItems[] = {
     {"Coke", 20.00, 15},
     {"Iced tea", 15.00, 15}
 };
+
 void displayMenu(struct MenuItem items[], int size) {
     printf("Menu:\n");
     printf("%-20s %-10s %-10s\n", "Name", "Price (PHP)", "In Stock");
@@ -101,10 +102,11 @@ void displayMenu(struct MenuItem items[], int size) {
     }
 }
 
-float takeOrder(struct MenuItem items[], int size) {
+float takeOrder(struct MenuItem items[], int size, struct MenuItem orderedItems[], int *orderedItemCount) {
     float total = 0.0;
     char itemName[20];
     int quantity;
+    *orderedItemCount = 0; // Initialize the count of ordered items
 
     printf("----------------------------------------\n");
     printf("\nEnter your order (Type 'done' to finish):\n");
@@ -123,6 +125,12 @@ float takeOrder(struct MenuItem items[], int size) {
                     total += items[i].price * quantity;
                     items[i].stock -= quantity;
                     printf("Added %d %s to your order.\n", quantity, itemName);
+
+                    // Store the ordered item and quantity
+                    strcpy(orderedItems[*orderedItemCount].name, itemName);
+                    orderedItems[*orderedItemCount].price = items[i].price;
+                    orderedItems[*orderedItemCount].stock = quantity;
+                    (*orderedItemCount)++;
                 } else {
                     printf("Sorry, %s is out of stock or insufficient stock.\n", itemName);
                 }
@@ -134,12 +142,67 @@ float takeOrder(struct MenuItem items[], int size) {
     return total;
 }
 
+// Generate receipt
+void generateReceipt(struct MenuItem items[], int size, float totalPrice) {
+    printf("\n------- RECEIPT -------\n");
+    printf("%-20s %-10s %-10s %-10s\n", "Name", "Quantity", "Price (PHP)", "Total (PHP)");
+    printf("----------------------------------------\n");
+
+    float totalOrderPrice = 0.0;
+    for (int i = 0; i < size; i++) {
+        if (items[i].stock > 0) { // Check if the item was ordered (stock is positive)
+            int quantityOrdered = items[i].stock;
+            float itemTotal = quantityOrdered * items[i].price;
+
+            printf("%-20s %-10d %-10.2f %-10.2f\n", items[i].name, quantityOrdered, items[i].price, itemTotal);
+            totalOrderPrice += itemTotal;
+        }
+    }
+
+
+    printf("----------------------------------------\n");
+    printf("TOTAL ORDER PRICE: Php %.2f\n", totalOrderPrice);
+  
+    // Option for discounts
+    float discountedPrice = totalOrderPrice;
+    char discountChoice;
+  
+    printf("\nDo you have a discount? (y/n): ");
+    scanf(" %c", &discountChoice);
+    if (discountChoice == 'y' || discountChoice == 'Y') {
+        float discountPercentage;
+        printf("Enter discount percentage: ");
+        scanf("%f", &discountPercentage);
+        discountedPrice -= (discountedPrice * (discountPercentage / 100));
+        printf("Discounted Price: Php %.2f\n", discountedPrice);
+    }
+
+
+  
+    // Option for cash payment
+    float cashPaid;
+  
+    printf("\nEnter cash amount paid: ");
+    scanf("%f", &cashPaid);
+    float change = cashPaid - discountedPrice;
+    if (change >= 0) {
+        printf("Change: Php %.2f\n", change);
+    } else {
+        printf("Insufficient cash paid. Remaining balance: Php %.2f\n", -change);
+    }
+}
+
 void main(){
     int key = login();
     if(key == 1){
         int size = sizeof(menuItems) / sizeof(menuItems[0]);
+        struct MenuItem orderedItems[size]; // Array to store ordered items
+        int orderedItemCount; // Variable to store the count of ordered items
         displayMenu(menuItems, size);
-        float totalPrice = takeOrder(menuItems, size);
+        float totalPrice = takeOrder(menuItems, size, orderedItems, &orderedItemCount);
         printf("\nTOTAL: \tPhp %.2f\n", totalPrice);
+
+        //call out receipt.c
+        generateReceipt(orderedItems, orderedItemCount, totalPrice);
     }    
 }
